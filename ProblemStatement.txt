@@ -1,0 +1,157 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+df =
+pd.read_csv('https://raw.githubusercontent.com/jackiekazil/data-wrangling/master/dat
+a/chp3/data-text.csv')
+df?.head(2)
+df1 =
+pd.read_csv('https://raw.githubusercontent.com/kjam/data-wrangling-pycon/master/d
+ata/berlin_weather_oldest.csv')
+df1?.head(2)
+
+
+
+##########
+1. Get the Metadata from the above files.
+
+df.info()
+
+df1.info()
+
+
+##############
+2. Get the row names from the above files.
+#2. Get the row names from the above files.
+
+df.index.values
+
+df1.index.values
+
+##############
+#3. Change the column name from any of the above file.
+df.rename(columns={'Indicator':'Indicator_Id'})
+
+#############
+#Change the column name from any of the above file and store the changes made permanently.
+df.rename(columns={'Indicator':'Indicator_Id'},inplace=True)
+
+
+
+#############
+#5. Change the names of multiple columns.
+
+df.rename(columns={'PUBLISH STATES':'Publication Status','WHO region':'WHO Region'})
+
+
+###########
+#6. Arrange values of a particular column in ascending order.
+df.sort_values(['Year'])
+
+
+
+#########
+#7. Arrange multiple column values in ascending order.
+
+df.sort_values(['Indicator_Id','Year','Country','WHO region','Sex'])
+
+
+
+########
+###Make country as the first column of the dataframe.
+df=pd.concat([df['Country'],df.drop('Country',axis=1)], axis=1)
+df
+
+####
+###Get the column array using a variable
+df['WHO region'].values
+
+###10. Get the subset rows 11, 24, 37
+
+df.iloc[[11,24,37]]
+
+
+###11. Get the subset rows excluding 5, 12, 23, and 56
+df2=[5,12,23,56]
+df[~df.index.isin(df2)]
+
+
+#########
+##12. Join users to transactions, keeping all rows from transactions and only matching rows from users (left join)
+pd.merge(transactions,users,how='left',on='UserID')
+
+
+
+
+####13Which transactions have a UserID not in users?
+transactions[~transactions.UserID.isin(users['UserID'])]
+
+
+##14. Join users to transactions, keeping only rows from transactions and users that match via UserID (inner join)
+pd.merge(transactions,users,how='inner',on='UserID')
+
+
+
+###15. Join users to transactions, displaying all matching rows AND all non-matching rows (full outer join)
+
+pd.merge(transactions,users,how='outer',on='UserID')
+
+
+
+##16. Determine which sessions occurred on the same day each user registered
+pd.merge(users,sessions,left_on=['UserID','Registered'], right_on=['UserID','SessionDate'],how='inner')
+
+
+##17. Build a dataset with every possible (UserID, ProductID) pair (cross join)
+userdf = pd.DataFrame({'key': np.repeat(1, users.shape[0]), 'UserID': users.UserID})
+productdf=pd.DataFrame({'key':np.repeat(1,products.shape[0]),'ProductID':products.ProductID})
+pd.merge(userdf,productdf,on='key')[['UserID','ProductID']]
+
+
+
+###18. Determine how much quantity of each product was purchased by each user
+
+purchageproduct=pd.merge(userdf,productdf,on='key')[['UserID','ProductID']]
+
+pd.merge(purchageproduct, transactions, how='left', on=['UserID', 'ProductID']).groupby(['UserID', 'ProductID']).apply(lambda x: pd.Series(dict(
+    Quantity=x.Quantity.sum()
+)))
+
+
+
+##19. For each user, get each possible pair of pair transactions (TransactionID1,TransacationID2)
+pd.merge(transactions,transactions,on='UserID')
+
+## Que20: Join each users to his/her first occuring transaction in the transactions table??
+pd.merge(users, transactions.groupby('UserID').first().reset_index(), how='left', on='UserID')
+
+
+####21. Test to see if we can drop columns
+my_columns = list(data.columns) 
+my_columns
+
+
+
+
+list(data.dropna(thresh=int(data.shape[0] * .9), axis=1).columns)
+
+
+missing_info = list(data.columns[data.isnull().any()])
+missing_info
+
+
+for col in missing_info:
+    num_missing = data[data[col].isnull() == True].shape[0]
+    print('number missing for column {}: {}'.format(col, num_missing))
+
+
+
+num_missing = data[data[col].isnull() == True].shape[0]
+print('number missing for column {}: {}'.format(col, num_missing)) #count of missing data
+
+
+
+for col in missing_info:
+    percent_missing = data[data[col].isnull() == True].shape[0] / data.shape[0]
+    print('percent missing for column {}: {}'.format(col, percent_missing))
